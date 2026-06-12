@@ -36,16 +36,16 @@ public class MainActivity extends Activity {
         layout.setPadding(64, 64, 64, 64);
         layout.setBackgroundColor(Color.parseColor("#0F172A"));
 
-        Button btnStart = createStyledButton("Start Overlay Service");
+        Button btnStart = createStyledButton("Start");
         btnStart.setOnClickListener(v -> checkPermissions());
 
-        Button btnBackup = createStyledButton("Backup Stats (Export)");
+        Button btnBackup = createStyledButton("Export Stats");
         btnBackup.setOnClickListener(v -> triggerBackup());
 
-        Button btnRestore = createStyledButton("Restore Stats (Import)");
+        Button btnRestore = createStyledButton("Import Stats");
         btnRestore.setOnClickListener(v -> triggerRestore());
 
-        Button btnExit = createStyledButton("Exit App & Counter");
+        Button btnExit = createStyledButton("Exit");
         btnExit.setOnClickListener(v -> {
             safeStartService("ACTION_STOP");
             finish();
