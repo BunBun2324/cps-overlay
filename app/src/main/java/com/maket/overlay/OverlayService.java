@@ -53,25 +53,31 @@ public class OverlayService extends Service {
     private final Handler handler = new Handler();
 
     private final Runnable ticker = new Runnable() {
-        @Override
-        public void run() {
-            long now = System.currentTimeMillis();
-            int clicksInWindow = 0;
-            for (int i = 0; i < tapCount; i++) {
-                if (now - tapTimes[i] <= 4000) {
-                    clicksInWindow++;
-                }
+    @Override
+    public void run() {
+        long now = System.currentTimeMillis();
+        int cps = 0;
+        
+        // Count clicks within exactly the last 1 second (1000ms)
+        for (int i = 0; i < tapCount; i++) {
+            if (now - tapTimes[i] <= 1000) {
+                cps++;
             }
-            float cps = clicksInWindow / 4.0f;
-            if (cps > peakCps) {
-                peakCps = cps;
-            }
-            tvCps.setText(String.format("%.2f", cps));
-            tvPeak.setText(String.format("%.2f", peakCps));
-            tvTotal.setText(String.valueOf(totalClicks));
-            handler.postDelayed(this, 100);
         }
-    };
+        
+        if (cps > peakCps) {
+            peakCps = cps;
+        }
+        
+        // Formatted to show clean whole numbers with zero decimal places
+        tvCps.setText(String.valueOf(cps));
+        tvPeak.setText(String.format("%.0f", peakCps));
+        tvTotal.setText(String.valueOf(totalClicks));
+        
+        handler.postDelayed(this, 100);
+    }
+};
+
 
     private final Runnable autoSave = new Runnable() {
         @Override
