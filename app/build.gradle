@@ -14,8 +14,12 @@ android {
     }
 
     buildTypes {
-        release {
+        debug {
             minifyEnabled false
         }
     }
+}
+
+dependencies {
+    implementation 'androidx.core:core:1.10.0'
 }
