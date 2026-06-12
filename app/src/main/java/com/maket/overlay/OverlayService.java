@@ -29,8 +29,10 @@ public class OverlayService extends Service {
     private static final String PREFS_NAME = "cps_data";
     private static final String KEY_PEAK = "peak_cps";
     private static final String KEY_TOTAL = "total_clicks";
+    private static final long DOUBLE_CLICK_TIMEOUT = 300;
 
     private WindowManager windowManager;
+    private WindowManager.LayoutParams params;
     private View overlayView;
     private TextView tvCps;
     private TextView tvPeak;
@@ -41,6 +43,11 @@ public class OverlayService extends Service {
     private final long[] tapTimes = new long[1000];
     private int tapHead = 0;
     private int tapCount = 0;
+
+    private long lastClickTime = 0;
+    private boolean isDragging = false;
+    private int initialX, initialY;
+    private float initialRawX, initialRawY;
 
     private final Handler handler = new Handler();
 
@@ -91,7 +98,7 @@ public class OverlayService extends Service {
         tvPeak = overlayView.findViewById(R.id.tv_peak);
         tvTotal = overlayView.findViewById(R.id.tv_total);
 
-        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+        params = new WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -109,22 +116,63 @@ public class OverlayService extends Service {
             @Override
             public boolean onTouch(View v, MotionEvent e) {
                 int maskedAction = e.getActionMasked();
-                if (maskedAction == MotionEvent.ACTION_DOWN
-                        || maskedAction == MotionEvent.ACTION_POINTER_DOWN
-                        || maskedAction == MotionEvent.ACTION_OUTSIDE) {
-                    tapTimes[tapHead % 1000] = System.currentTimeMillis();
-                    tapHead++;
-                    if (tapCount < 1000) {
-                        tapCount++;
-                    }
-                    totalClicks++;
+
+                switch (maskedAction) {
+                    case MotionEvent.ACTION_DOWN:
+                        long clickTime = System.currentTimeMillis();
+                        if (clickTime - lastClickTime < DOUBLE_CLICK_TIMEOUT) {
+                            isDragging = true;
+                            initialX = params.x;
+                            initialY = params.y;
+                            initialRawX = e.getRawX();
+                            initialRawY = e.getRawY();
+                        } else {
+                            isDragging = false;
+                        }
+                        lastClickTime = clickTime;
+                        registerTap();
+                        break;
+
+                    case MotionEvent.ACTION_POINTER_DOWN:
+                        if (!isDragging) {
+                            registerTap();
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_OUTSIDE:
+                        registerTap();
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        if (isDragging) {
+                            int deltaX = (int) (e.getRawX() - initialRawX);
+                            int deltaY = (int) (e.getRawY() - initialRawY);
+                            params.x = initialX + deltaX;
+                            params.y = initialY + deltaY;
+                            windowManager.updateViewLayout(overlayView, params);
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        isDragging = false;
+                        break;
                 }
-                return false;
+                return true;
             }
         });
 
         handler.post(ticker);
         handler.postDelayed(autoSave, 10 * 60 * 1000);
+    }
+
+    private void registerTap() {
+        tapTimes[tapHead % 1000] = System.currentTimeMillis();
+        tapHead++;
+        if (tapCount < 1000) {
+            tapCount++;
+        }
+        totalClicks++;
     }
 
     @Override
