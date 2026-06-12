@@ -26,6 +26,7 @@ public class OverlayService extends Service {
     private static final int NOTIF_ID = 1;
     private static final String ACTION_STOP = "ACTION_STOP";
     private static final String ACTION_RESET = "ACTION_RESET";
+    private static final String ACTION_LOAD = "ACTION_LOAD";
     private static final String PREFS_NAME = "cps_data";
     private static final String KEY_PEAK = "peak_cps";
     private static final String KEY_TOTAL = "total_clicks";
@@ -55,17 +56,18 @@ public class OverlayService extends Service {
         @Override
         public void run() {
             long now = System.currentTimeMillis();
-            int cps = 0;
+            int clicksInWindow = 0;
             for (int i = 0; i < tapCount; i++) {
-                if (now - tapTimes[i] <= 1000) {
-                    cps++;
+                if (now - tapTimes[i] <= 4000) {
+                    clicksInWindow++;
                 }
             }
+            float cps = clicksInWindow / 4.0f;
             if (cps > peakCps) {
                 peakCps = cps;
             }
-            tvCps.setText(String.format("%.1f", (float) cps));
-            tvPeak.setText(String.format("%.1f", peakCps));
+            tvCps.setText(String.format("%.2f", cps));
+            tvPeak.setText(String.format("%.2f", peakCps));
             tvTotal.setText(String.valueOf(totalClicks));
             handler.postDelayed(this, 100);
         }
@@ -191,6 +193,9 @@ public class OverlayService extends Service {
                 tapHead = 0;
                 tapCount = 0;
                 saveData();
+            }
+            if (ACTION_LOAD.equals(action)) {
+                loadData();
             }
         }
         return START_STICKY;
