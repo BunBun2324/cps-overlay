@@ -8,7 +8,8 @@
 
     <application
         android:label="CPS Overlay"
-        android:theme="@android:style/Theme.DeviceDefault"
+        android:theme="@android:style/Theme.NoDisplay">
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
