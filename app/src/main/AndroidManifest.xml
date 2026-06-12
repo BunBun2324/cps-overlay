@@ -3,6 +3,8 @@
     package="com.maket.overlay">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <application
         android:label="CPS Overlay"
@@ -19,7 +21,8 @@
 
         <service
             android:name=".OverlayService"
-            android:exported="false"/>
+            android:exported="false"
+            android:foregroundServiceType="specialUse"/>
 
     </application>
 
