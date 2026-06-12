@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -32,23 +34,52 @@ public class MainActivity extends Activity {
         layout.setOrientation(LinearLayout.VERTICAL);
         layout.setGravity(Gravity.CENTER);
         layout.setPadding(64, 64, 64, 64);
+        layout.setBackgroundColor(Color.parseColor("#0F172A"));
 
-        Button btnStart = new Button(this);
-        btnStart.setText("Start Overlay Service");
+        Button btnStart = createStyledButton("Start Overlay Service");
         btnStart.setOnClickListener(v -> checkPermissions());
 
-        Button btnBackup = new Button(this);
-        btnBackup.setText("Backup Stats (Export)");
+        Button btnBackup = createStyledButton("Backup Stats (Export)");
         btnBackup.setOnClickListener(v -> triggerBackup());
 
-        Button btnRestore = new Button(this);
-        btnRestore.setText("Restore Stats (Import)");
+        Button btnRestore = createStyledButton("Restore Stats (Import)");
         btnRestore.setOnClickListener(v -> triggerRestore());
+
+        Button btnExit = createStyledButton("Exit App & Counter");
+        btnExit.setOnClickListener(v -> {
+            safeStartService("ACTION_STOP");
+            finish();
+        });
 
         layout.addView(btnStart);
         layout.addView(btnBackup);
         layout.addView(btnRestore);
+        layout.addView(btnExit);
         setContentView(layout);
+    }
+
+    private Button createStyledButton(String text) {
+        Button btn = new Button(this);
+        btn.setText(text);
+        btn.setTextColor(Color.parseColor("#F8FAFC"));
+        btn.setTextSize(16);
+        btn.setAllCaps(false);
+
+        GradientDrawable shape = new GradientDrawable();
+        shape.setShape(GradientDrawable.RECTANGLE);
+        shape.setColor(Color.parseColor("#1E293B"));
+        shape.setCornerRadius(24);
+        btn.setBackground(shape);
+
+        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+            LinearLayout.LayoutParams.MATCH_PARENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT
+        );
+        params.setMargins(0, 20, 0, 20);
+        btn.setLayoutParams(params);
+        btn.setPadding(0, 35, 0, 35);
+
+        return btn;
     }
 
     private void checkPermissions() {
@@ -70,6 +101,7 @@ public class MainActivity extends Activity {
             startActivityForResult(intent, REQ_OVERLAY);
         } else {
             safeStartService(null);
+            finish();
         }
     }
 
@@ -112,6 +144,7 @@ public class MainActivity extends Activity {
         if (req == REQ_OVERLAY) {
             if (Settings.canDrawOverlays(this)) {
                 safeStartService(null);
+                finish();
             }
         } else if (req == REQ_BACKUP && res == RESULT_OK && data != null) {
             executeExport(data.getData());
