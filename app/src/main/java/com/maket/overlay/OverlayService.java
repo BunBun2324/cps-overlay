@@ -247,8 +247,8 @@ public class OverlayService extends Service {
         );
 
         return new NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("CPS Overlay Running")
-            .setContentText("Tracking your clicks")
+            .setContentTitle("CPS Tracker Running")
+            .setContentText("Tracking clicks")
             .setSmallIcon(android.R.drawable.ic_menu_compass)
             .setOngoing(true)
             .addAction(android.R.drawable.ic_menu_revert, "Reset", resetPending)
