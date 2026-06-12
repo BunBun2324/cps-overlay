@@ -21,7 +21,7 @@
         <service
             android:name=".OverlayService"
             android:exported="false"
-            android:foregroundServiceType="specialUse"/>
+            android:foregroundServiceType="mediaPlayback"/>
 
     </application>
 
