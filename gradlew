@@ -1,2 +1,2 @@
 #!/bin/sh
-exec gradle "$@"
+GRADLE_OPTS="" exec "$(dirname "$0")/gradle/wrapper/gradlew" "$@"
