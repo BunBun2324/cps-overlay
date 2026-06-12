@@ -67,7 +67,7 @@ public class OverlayService extends Service {
         startForeground(NOTIF_ID, buildNotification());
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        overlayView = getLayoutInflater().inflate(R.layout.overlay, null);
+        overlayView = LayoutInflater.from(this).inflate(R.layout.overlay, null);
         tvCps   = overlayView.findViewById(R.id.tv_cps);
         tvPeak  = overlayView.findViewById(R.id.tv_peak);
         tvTotal = overlayView.findViewById(R.id.tv_total);
